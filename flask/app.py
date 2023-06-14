@@ -17,7 +17,6 @@ NODES = [
   {
     "_id": "f4db9b1a-dce2-4060-892f-ff0b2892d730",
     "type": "PromptNode",
-    "start": True,
     "config": {
       "text": "Das ist ein Test 2"
     },
