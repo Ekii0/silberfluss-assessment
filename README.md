@@ -14,7 +14,7 @@ After you've installed Docker, you can run
 ./run.sh
 ```
 
-to build the docker container and start it.
+to build the docker container and start it. If errors are displayed at launch, please contact Jan.
 
 You can then access the frontend at `http://localhost:4200` and the backend at `http://localhost:1337`. 
 
