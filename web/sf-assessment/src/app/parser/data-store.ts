@@ -34,9 +34,16 @@ class DataStore {
     return Object.keys(this._value);
   }
 
-  public delete(key: string): void {
+  public delete(key: string, value?: string): void {
     if (this._value[key]) {
-      this._value[key].data.pop();
+      if (value) {
+        const index = this._value[key].data.indexOf(value)
+        if (index !== -1) {
+          this._value[key].data.splice(index, 1);
+        }
+      } else {
+        this._value[key].data.pop();
+      }
       if (this._value[key].data.length <= 0) {
         delete this._value[key];
       }

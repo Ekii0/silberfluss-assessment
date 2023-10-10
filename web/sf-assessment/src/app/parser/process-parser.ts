@@ -18,7 +18,6 @@ export function hashCode(str: string) {
   return hash.toString();
 }
 
-
 export class ProcessParser {
   private _thread?: Thread;
 
@@ -48,11 +47,15 @@ export class ProcessParser {
     return this.thread?.nodeTemplate ?? [];
   }
 
-  setupThread(nodeTemplate: ProcessNode[]) {
+  setupThread(nodeTemplate: ProcessNode[], userData?: any) {
     this.thread = {
       chat: [],
       dataStore: new DataStore(),
-      nodeTemplate
+      nodeTemplate,
+    };
+    for (let item of userData) {
+      const[key, value] = Object.entries(item)[0];
+      this.thread.dataStore.set(key, value)
     }
   }
 
@@ -74,24 +77,55 @@ export class ProcessParser {
   }
 
   reply(message: ChatMessage, delay = 750): Promise<void> {
-    if (!this.replyPromise || !this.thread || !this.thread?.chat[this.thread.chat.length - 1]?.responseRequest) {
+    if (
+      !this.replyPromise ||
+      !this.thread ||
+      !this.thread?.chat[this.thread.chat.length - 1]?.responseRequest
+    ) {
       return Promise.reject();
     }
-    this.thread.chat[this.thread.chat.length - 1].responseRequest!.response = message.id;
+    this.thread.chat[this.thread.chat.length - 1].responseRequest!.response =
+      message.id;
     const content = message.content;
     this.thread.chat.push(message);
-    return new Promise<void>((resolve) => {
-      window.setTimeout(() => {
-        this.replyPromise?.(content);
-        resolve();
-      }, delay);
-    });
+    if (message.content.value.includes('data:image/png;base64')) {
+      return new Promise<void>((resolve, reject) => {
+        fetch("http://localhost:1337/store-signature", {
+          method: "POST",
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(this.thread?.chat)
+        }).then((res) => res.json())
+          .then((response) => {
+            if (response.success) {
+              this.replyPromise?.(content);
+              resolve();
+            }
+            reject();
+           })
+      })
+    } else {
+      return new Promise<void>((resolve, reject) => {
+        fetch("http://localhost:1337/process", {
+          method: "POST",
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(this.thread?.chat)
+        }).then((res) => res.json())
+          .then((response) => {
+            if (response.success) {
+              this.replyPromise?.(content);
+              resolve();
+            }
+            reject();
+          })
+        // window.setTimeout(() => {
+        //   this.replyPromise?.(content);
+        //   resolve();
+        // }, delay);
+      });
+    }
   }
 
-  prompt(
-    text: string,
-    defaultValue: any
-  ) {
+  prompt(text: string, defaultValue: any) {
     const data: ChatMessage = {
       id: `prompt_${hashCode(text)}`,
       content: text,
@@ -132,7 +166,9 @@ export class ProcessParser {
   }
 
   getNodeId(node: AbstractNode): string | undefined {
-    return this.thread?.nodeTemplate?.find((n) => n.node === node)?._id ?? undefined;
+    return (
+      this.thread?.nodeTemplate?.find((n) => n.node === node)?._id ?? undefined
+    );
   }
 
   get dataStore() {

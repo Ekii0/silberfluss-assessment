@@ -25,4 +25,4 @@ services:
       - 4200:4200
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    restart: always
+    restart: always 

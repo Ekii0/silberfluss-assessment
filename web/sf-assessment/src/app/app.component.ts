@@ -28,10 +28,11 @@ export class AppComponent implements OnInit {
 
   private async getProcess() {
     const nodes = await fetch(`http://localhost:1337/process`).then(resp => resp.json());
+    const savedUserData = await fetch('http://localhost:1337/data').then(resp => resp.json());
     this.parser.setupThread(nodes.map((n: any) => ({
       ...n,
       node: SketchParser.buildNode(n.type, n.config)
-    })));
+    })), savedUserData);
     this.parser.start(() => {
       alert('Process finished!');
     });

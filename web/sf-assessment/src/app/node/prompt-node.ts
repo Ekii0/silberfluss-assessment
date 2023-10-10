@@ -6,6 +6,8 @@ export class PromptNode extends AbstractNode {
     text: ''
   };
 
+  override _identifier = "promptNode";
+
   async execute(): Promise<void> {
     const resp = await this.prompt(this.config?.['text'], '', );
     if (this.refId) {
