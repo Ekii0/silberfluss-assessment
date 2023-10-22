@@ -93,7 +93,7 @@ export class SignatureFieldComponent implements ControlValueAccessor, MatFormFie
   // required by ControlValueAccessor
 
   writeValue(value: string): void {
-    this.value = value
+    this.value = value;
   }
 
   onChange: any = () => {}

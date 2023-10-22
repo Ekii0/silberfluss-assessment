@@ -1,5 +1,8 @@
-<div class="message-content" *ngIf="message">
+<div class="message-content" *ngIf="message && !message.content?.value?.startsWith('data:image')">
   <p [innerHTML]="message.content?.value"></p>
+</div>
+<div class="message-content" *ngIf="message?.content && message!.content!.value!.startsWith('data:image')">
+  <img [src]="message!.content!.value" />
 </div>
 <div class="response" *ngIf="message?.responseRequest && last && parser?.visitor?.currentNode?.node?.identifier === 'promptNode'">
   <mat-form-field appearance="outline">
@@ -25,7 +28,7 @@
   </button>
 </div>
 
-<div class="sigPadPrompt" *ngIf="last && parser?.visitor?.currentNode?.node?.identifier === 'signatureNode'">
+<div class="sigPadPrompt" *ngIf="message?.responseRequest && last && parser?.visitor?.currentNode?.node?.identifier === 'signatureNode'">
   <mat-form-field appearance="outline">
     <mat-label>Signature</mat-label>
     <signature-field [formControl]="control"></signature-field>
